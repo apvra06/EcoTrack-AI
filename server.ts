@@ -203,6 +203,11 @@ function ConfigureApp() {
   app.post('/api/insights', aiLimiter, async (req, res) => {
     const userId = getUserId(req);
     const profile = DBService.getProfile(userId);
+    if (!profile) {
+      return res.status(404).json({
+        error: "Carbon profile not found"
+      });
+    }
 
     // Guard checking if API key exists. If not, fallback to static beautiful insights to keep the platform responsive
     
@@ -310,6 +315,22 @@ function ConfigureApp() {
       });
     }
   });
+
+    // Global error handler
+    app.use(
+      (
+        err: any,
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
+        console.error("[Server Error]", err);
+
+        res.status(500).json({
+          error: "Internal server error"
+        });
+      }
+    );
 }
 async function startServer() {
   
