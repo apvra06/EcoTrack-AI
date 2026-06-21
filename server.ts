@@ -8,10 +8,13 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { DBService } from './server/db';
 import { GoogleGenAI, Type } from '@google/genai';
+import { ApiClient } from '@google/genai/vertex_internal';
+import rateLimit from "express-rate-limit";
 
 // Initialize Gemini SDK with telemetry user-agent
+const apiKey = process.env.GEMINI_API_KEY;
 const aiClient = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || '',
+  apiKey: apiKey || '',
   httpOptions: {
     headers: {
       'User-Agent': 'aistudio-build'
@@ -21,6 +24,13 @@ const aiClient = new GoogleGenAI({
 
 async function startServer() {
   const app = express();
+  const aiLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 20,
+    message: {
+      error: "Too many requests. Please try again later."
+    }
+  });
   const PORT = 3000;
 
   // Body parsing middleware
@@ -136,12 +146,13 @@ async function startServer() {
   });
 
   // AI Insights - Generates cinematic intelligence narrative, floating fragments, custom recommendation guides
-  app.post('/api/insights', async (req, res) => {
+  app.post('/api/insights', aiLimiter, async (req, res) => {
     const userId = getUserId(req);
     const profile = DBService.getProfile(userId);
 
     // Guard checking if API key exists. If not, fallback to static beautiful insights to keep the platform responsive
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'MY_GEMINI_API_KEY') {
+    
+    if (!apiKey) {
       console.log('Gemini API key is not configured. Utilizing premium built-in insights.');
       return res.json({
         sustainabilityNarrative: `Your current carbon trace orbits at ${profile.calculatedFootprint} tonnes of CO2e. This density places your planetary sphere in a "${profile.status}" state. Warm currents flow across the northern convective zone, but carbon density in the transportation sector remains a persistent cloud canopy. Your carbon index represents a moderate balance. Transitioning key transit mechanics can shift this orbit toward perfect resonance.`,
