@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useEco } from '../context/EcoContext';
 import { Compass, Car, Train, Activity, Flame, Shield, ArrowRight, ArrowLeft, RefreshCw, Layers } from 'lucide-react';
+import { calculateFootprint } from "../utils/carbon";
 
 export default function Calculator() {
   const navigate = useNavigate();
@@ -36,25 +37,15 @@ export default function Calculator() {
     }
   }, [profile]);
 
-  // Live dynamic footprint calculation for user visual response
-  const calculateLiveFootprint = () => {
-    const carEmissions = (carTravel * 52 * 0.18) / 1000;
-    const busEmissions = (busTravel * 52 * 0.08) / 1000;
-    const trainEmissions = (trainTravel * 52 * 0.04) / 1000;
-    const electricityEmissions = (electricityUsage * 12 * 0.35) / 1000;
-
-    let foodEmissions = 2.2;
-    if (foodChoice === 'vegetarian') foodEmissions = 1.5;
-    else if (foodChoice === 'non-vegetarian') foodEmissions = 3.3;
-
-    let wasteEmissions = 0.5;
-    if (wasteChoice === 'low') wasteEmissions = 0.2;
-    else if (wasteChoice === 'high') wasteEmissions = 0.9;
-
-    return parseFloat((carEmissions + busEmissions + trainEmissions + electricityEmissions + foodEmissions + wasteEmissions).toFixed(2));
-  };
-
-  const liveScore = calculateLiveFootprint();
+  // Calculate live footprint score based on current selections
+  const liveScore = calculateFootprint({
+    carTravel,
+    busTravel,
+    trainTravel,
+    electricityUsage,
+    foodChoice,
+    wasteChoice
+  });
 
   // Get color depending on the score
   const getRatingColor = (score: number) => {
