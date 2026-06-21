@@ -10,6 +10,7 @@ import { DBService } from './server/db';
 import { GoogleGenAI, Type } from '@google/genai';
 import { ApiClient } from '@google/genai/vertex_internal';
 import rateLimit from "express-rate-limit";
+import { z } from "zod";
 
 // Initialize Gemini SDK with telemetry user-agent
 const apiKey = process.env.GEMINI_API_KEY;
@@ -96,18 +97,48 @@ async function startServer() {
     }
     res.json({ user });
   });
+  //zod layer
+  const profileSchema = z.object({
+    carTravel: z.number().min(0),
+    busTravel: z.number().min(0),
+    trainTravel: z.number().min(0),
 
-  // Carbon profile
-  app.get('/api/profile', (req, res) => {
-    const userId = getUserId(req);
-    const profile = DBService.getProfile(userId);
-    res.json({ profile });
+    electricityUsage: z.number().min(0),
+
+    foodChoice: z.enum([
+      "vegetarian",
+      "non-vegetarian",
+      "mixed"
+    ]),
+
+    wasteChoice: z.enum([
+      "low",
+      "medium",
+      "high"
+    ])
   });
-
+  
+  // Carbon profile
   app.post('/api/profile', (req, res) => {
+
+    const validation = profileSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        error: "Invalid carbon profile data",
+        details: validation.error.flatten()
+      });
+    }
+
     const userId = getUserId(req);
-    const updated = DBService.updateProfile(userId, req.body);
+
+    const updated = DBService.updateProfile(
+      userId,
+      validation.data
+    );
+
     res.json({ profile: updated });
+
   });
 
   // Telemetry
