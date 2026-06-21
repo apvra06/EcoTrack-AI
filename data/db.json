@@ -1,0 +1,120 @@
+{
+  "users": [
+    {
+      "id": "fplsefgnz",
+      "email": "apvra06@gmail.com",
+      "name": "Atharv",
+      "createdAt": "2026-06-21T11:01:24.828Z"
+    }
+  ],
+  "passwords": {
+    "fplsefgnz": "1234"
+  },
+  "profiles": [
+    {
+      "id": "mxi46fg58",
+      "userId": "fplsefgnz",
+      "carTravel": 670,
+      "busTravel": 20,
+      "trainTravel": 40,
+      "electricityUsage": 320,
+      "foodChoice": "non-vegetarian",
+      "wasteChoice": "high",
+      "calculatedFootprint": 11.98,
+      "status": "Critical",
+      "updatedAt": "2026-06-21T11:02:45.474Z"
+    }
+  ],
+  "missions": {
+    "fplsefgnz": [
+      {
+        "id": "m1",
+        "title": "Kinetic Shift",
+        "description": "Transition 50km of weekly transit from active personal motor combustion to electric rail or cycle.",
+        "category": "transport",
+        "targetValue": 50,
+        "currentValue": 0,
+        "unit": "km",
+        "points": 120,
+        "isCompleted": false,
+        "type": "reduction"
+      },
+      {
+        "id": "m2",
+        "title": "The Static Hour",
+        "description": "Reduce quarterly electrical energy demand by 30 kWh through hardware power shutdown protocols.",
+        "category": "energy",
+        "targetValue": 30,
+        "currentValue": 0,
+        "unit": "kWh",
+        "points": 150,
+        "isCompleted": false,
+        "type": "lifestyle"
+      },
+      {
+        "id": "m3",
+        "title": "Primal Diet",
+        "description": "Introduce exclusive plant-based diet protocols for 5 days of the week.",
+        "category": "food",
+        "targetValue": 5,
+        "currentValue": 0,
+        "unit": "days",
+        "points": 200,
+        "isCompleted": false,
+        "type": "lifestyle"
+      },
+      {
+        "id": "m4",
+        "title": "Zero Core Leakage",
+        "description": "Establish active zero-organic core waste compost cycles for two weeks.",
+        "category": "waste",
+        "targetValue": 14,
+        "currentValue": 0,
+        "unit": "days",
+        "points": 100,
+        "isCompleted": false,
+        "type": "reduction"
+      }
+    ]
+  },
+  "recommendations": {
+    "fplsefgnz": [
+      {
+        "id": "r1",
+        "title": "Electrified Concourse",
+        "category": "transport",
+        "impact": "High",
+        "difficulty": "Medium",
+        "savings": 1840,
+        "explanation": "Shifting your travel routines to shared electrified rail networks reduces personal kinetic carbon footprint by up to 88% per travel hour."
+      },
+      {
+        "id": "r2",
+        "title": "Thermal Core Optimization",
+        "category": "energy",
+        "impact": "Medium",
+        "difficulty": "Easy",
+        "savings": 450,
+        "explanation": "Optimizing household HVAC and water heating thermals by just 1.5°C limits energy loss profiles without compromising core ambient comfort."
+      },
+      {
+        "id": "r3",
+        "title": "Agrarian Cycle Adoption",
+        "category": "food",
+        "impact": "High",
+        "difficulty": "Easy",
+        "savings": 1200,
+        "explanation": "transitioning primary nutrition proteins to organic whole plant structures diminishes massive agricultural irrigation and transport multipliers."
+      },
+      {
+        "id": "r4",
+        "title": "Consolidated Mass Reduction",
+        "category": "waste",
+        "impact": "Low",
+        "difficulty": "Medium",
+        "savings": 280,
+        "explanation": "Utilizing compost loops and prioritizing glass over plastic prevents volatile methane leakage and raw materials refining overhead."
+      }
+    ]
+  }
+}

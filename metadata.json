@@ -1,0 +1,6 @@
+{
+  "name": "EcoTrack AI",
+  "description": "Environmental Intelligence Platform transforming everyday carbon choices into a living planetary ecosystem.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
