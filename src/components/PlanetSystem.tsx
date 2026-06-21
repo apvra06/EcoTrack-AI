@@ -367,9 +367,9 @@ export default function PlanetSystem({
             </div>
           </div>
           <div>
-            <h5 className="font-semibold text-sm text-[white] leading-tight flex items-center gap-1.5 capitalize">
+            <h3 className="font-semibold text-sm text-[white] leading-tight flex items-center gap-1.5 capitalize">
               {stateDetails.statusLabel}
-            </h5>
+            </h3>
             <p className="text-[10px] text-slate-400 font-mono mt-0.5 leading-none">
               {stateDetails.statusDesc}
             </p>

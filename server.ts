@@ -14,17 +14,18 @@ import { z } from "zod";
 
 // Initialize Gemini SDK with telemetry user-agent
 const apiKey = process.env.GEMINI_API_KEY;
-const aiClient = new GoogleGenAI({
-  apiKey: apiKey || '',
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build'
-    }
-  }
-});
-
-async function startServer() {
-  const app = express();
+const aiClient = apiKey
+  ? new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    })
+  : null;
+ // start server function
+ const app = express();
   const aiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 20,
@@ -33,6 +34,8 @@ async function startServer() {
     }
   });
   const PORT = 3000;
+
+function ConfigureApp() {
 
   // Body parsing middleware
   app.use(express.json());
@@ -229,7 +232,10 @@ async function startServer() {
       1. sustainabilityNarrative: A beautiful 3-4 sentence storytelling paragraph about their personal planetary sphere, current state, and the poetic impact of their choices on global thermals and tides. Keep it luxury, technical, yet highly cinematic and emotionally charged.
       2. observations: A list of 3 highly custom intelligence observations (atmospheric monitoring traces, like "Localized household combustion forms a persistent 1.2x light deflection shield").
       3. recommendations: An array of 2 tailored recommendations, each with 'title', 'category' (transport, energy, food, waste), 'impact' (High, Medium, Low), 'difficulty' (Easy, Medium, Hard), 'savings' (kg CO2e saved annually as integer), and 'explanation' (prose explaining the environmental physics of this change).`;
-
+      
+      if (!aiClient) {
+        throw new Error("Gemini service unavailable");
+      }
       const response = await aiClient.models.generateContent({
         model: 'gemini-3.5-flash',
         contents: prompt,
@@ -284,28 +290,52 @@ async function startServer() {
       });
     }
   });
+}
+async function startServer() {
+
 
   // --- DEV & PRODUCTION MIDDLEWARE ---
 
   if (process.env.NODE_ENV !== 'production') {
+
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
+
     app.use(vite.middlewares);
+
   } else {
+
     const distPath = path.join(process.cwd(), 'dist');
+
     app.use(express.static(distPath));
+
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(
+        path.join(distPath, 'index.html')
+      );
     });
+
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[EcoTrack AI Server] Active, monitoring stream on port ${PORT}`);
-  });
-}
 
-startServer().catch(err => {
-  console.error('[Fatal Platform Crash]', err);
-});
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(
+      `[EcoTrack AI Server] Active, monitoring stream on port ${PORT}`
+    );
+  });
+
+}
+ConfigureApp();
+
+export { app };
+
+
+if (process.env.NODE_ENV !== "test") {
+
+  startServer().catch(err => {
+    console.error('[Fatal Platform Crash]', err);
+  });
+
+}
