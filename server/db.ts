@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { User, CarbonProfile, Mission, Recommendation, EcoHealthStatus, Telemetry, EmissionHistoryItem } from '../src/types';
-
+import bcrypt from "bcrypt";
 const DB_DIR = path.resolve(process.cwd(), 'data');
 const DB_FILE = path.resolve(DB_DIR, 'db.json');
 
@@ -147,9 +147,11 @@ let db = loadDB();
 
 export const DBService = {
   // Auth operations
-  registerUser: (email: string, name: string, password: string): User | null => {
+  registerUser: async (email: string, name: string, password: string): Promise<User | null> => {
     const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (existing) return null;
+
+    
 
     const newUser: User = {
       id: Math.random().toString(36).substring(2, 11),
@@ -159,7 +161,8 @@ export const DBService = {
     };
 
     db.users.push(newUser);
-    db.passwords[newUser.id] = password;
+    const passwordHash = await bcrypt.hash(password, 10);
+    db.passwords[newUser.id] = passwordHash;
 
     // Seed default missions and recommendations for this brand new user
     db.missions[newUser.id] = JSON.parse(JSON.stringify(DEFAULT_MISSIONS));
@@ -169,15 +172,29 @@ export const DBService = {
     return newUser;
   },
 
-  loginUser: (email: string, password: string): User | null => {
-    const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  loginUser: async (
+    email: string,
+    password: string
+  ): Promise<User | null> => {
+
+    const user = db.users.find(
+      u => u.email.toLowerCase() === email.toLowerCase()
+    );
+
     if (!user) return null;
 
     const storedPass = db.passwords[user.id];
-    if (storedPass === password) {
-      return user;
+
+    const isValid = await bcrypt.compare(
+      password,
+      storedPass
+    );
+
+    if (!isValid) {
+      return null;
     }
-    return null;
+
+    return user;
   },
 
   getUserById: (id: string): User | null => {

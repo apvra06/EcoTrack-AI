@@ -11,6 +11,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { ApiClient } from '@google/genai/vertex_internal';
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
+import helmet from "helmet";
 
 // Initialize Gemini SDK with telemetry user-agent
 const apiKey = process.env.GEMINI_API_KEY;
@@ -33,12 +34,31 @@ const aiClient = apiKey
       error: "Too many requests. Please try again later."
     }
   });
+
+  const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    message:{
+      error:"Too many requests. Environmental monitoring temporarily throttled."
+    }
+  });
   const PORT = 3000;
 
 function ConfigureApp() {
 
+  // Security headers middleware
+  app.use(
+    helmet({
+      contentSecurityPolicy:false,
+      crossOriginEmbedderPolicy:false
+    })
+  );
+
   // Body parsing middleware
   app.use(express.json());
+
+  //Global API rate limiting 
+  app.use(globalLimiter);
 
   // Request logs helper
   app.use((req, res, next) => {
@@ -62,13 +82,13 @@ function ConfigureApp() {
   // --- API ROUTES ---
 
   // Auth: Register
-  app.post('/api/auth/register', (req, res) => {
+  app.post('/api/auth/register', async (req, res) => {
     const { email, name, password } = req.body;
     if (!email || !name || !password) {
       return res.status(400).json({ error: 'All administrative parameters (email, name, password) must be provided.' });
     }
 
-    const newUser = DBService.registerUser(email, name, password);
+    const newUser = await DBService.registerUser(email, name, password);
     if (!newUser) {
       return res.status(400).json({ error: 'Credentials conflict. This identity parameters are already linked to the ecosystem.' });
     }
@@ -77,13 +97,13 @@ function ConfigureApp() {
   });
 
   // Auth: Login
-  app.post('/api/auth/login', (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: 'Identification parameters (email, password) are required.' });
     }
 
-    const user = DBService.loginUser(email, password);
+    const user = await DBService.loginUser(email, password);
     if (!user) {
       return res.status(401).json({ error: 'System unauthorized. The credential combination could not be authenticated.' });
     }
@@ -92,9 +112,9 @@ function ConfigureApp() {
   });
 
   // User details
-  app.get('/api/auth/me', (req, res) => {
+  app.get('/api/auth/me', async (req, res) => {
     const userId = getUserId(req);
-    const user = DBService.getUserById(userId);
+    const user = await DBService.getUserById(userId);
     if (!user) {
       return res.status(404).json({ error: 'Current identity trace expired.' });
     }
@@ -122,7 +142,7 @@ function ConfigureApp() {
   });
   
   // Carbon profile
-  app.post('/api/profile', (req, res) => {
+  app.post('/api/profile', async (req, res) => {
 
     const validation = profileSchema.safeParse(req.body);
 
@@ -135,7 +155,7 @@ function ConfigureApp() {
 
     const userId = getUserId(req);
 
-    const updated = DBService.updateProfile(
+    const updated = await DBService.updateProfile(
       userId,
       validation.data
     );
@@ -145,37 +165,37 @@ function ConfigureApp() {
   });
 
   // Telemetry
-  app.get('/api/telemetry', (req, res) => {
+  app.get('/api/telemetry', async (req, res) => {
     const userId = getUserId(req);
-    const telemetry = DBService.getTelemetry(userId);
+    const telemetry = await DBService.getTelemetry(userId);
     res.json({ telemetry });
   });
 
   // Analytics history
-  app.get('/api/analytics', (req, res) => {
+  app.get('/api/analytics', async (req, res) => {
     const userId = getUserId(req);
-    const history = DBService.getAnalyticsHistory(userId);
+    const history = await DBService.getAnalyticsHistory(userId);
     res.json({ history });
   });
 
   // Missions
-  app.get('/api/missions', (req, res) => {
+  app.get('/api/missions', async (req, res) => {
     const userId = getUserId(req);
-    const missions = DBService.getMissions(userId);
+    const missions = await DBService.getMissions(userId);
     res.json({ missions });
   });
 
-  app.post('/api/missions/:id/toggle', (req, res) => {
+  app.post('/api/missions/:id/toggle', async (req, res) => {
     const userId = getUserId(req);
     const { id } = req.params;
-    const missions = DBService.toggleMission(userId, id);
+    const missions = await DBService.toggleMission(userId, id);
     res.json({ missions });
   });
 
   // Recommendations
-  app.get('/api/recommendations', (req, res) => {
+  app.get('/api/recommendations', async (req, res) => {
     const userId = getUserId(req);
-    const recommendations = DBService.getRecommendations(userId);
+    const recommendations = await DBService.getRecommendations(userId);
     res.json({ recommendations });
   });
 
@@ -292,8 +312,8 @@ function ConfigureApp() {
   });
 }
 async function startServer() {
-
-
+  
+ 
   // --- DEV & PRODUCTION MIDDLEWARE ---
 
   if (process.env.NODE_ENV !== 'production') {
