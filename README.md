@@ -9,6 +9,9 @@ Instead of presenting sustainability through static charts and spreadsheets, Eco
 Built around the philosophy of **Cinematic Digital Craftsmanship**, EcoTrack AI combines premium visual design, AI-driven intelligence, and environmental awareness into a unified experience that feels more like a futuristic observatory than a traditional dashboard.
 
 ---
+## 🚀 Live Demo
+
+Experience EcoTrack AI: https://ecotrack-ai-nfoi.onrender.com
 
 ## ✨ Core Features
 
