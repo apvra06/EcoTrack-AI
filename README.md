@@ -184,6 +184,72 @@ EcoTrack AI
 │
 └── Goal Tracking System
 ```
+## 🔐 Security & Reliability
+
+EcoTrack AI implements multiple layers of security and reliability measures to ensure safe and stable operation.
+
+### Security Features
+
+- **Helmet Security Middleware**
+  - Adds secure HTTP headers to protect against common web vulnerabilities.
+  - Improves browser-level security policies.
+
+- **API Rate Limiting**
+  - Global request throttling prevents API abuse.
+  - AI Insight generation has an additional dedicated limiter to protect expensive AI resources.
+
+- **Input Validation with Zod**
+  - All carbon profile submissions are validated before processing.
+  - Prevents invalid or malformed environmental data from entering the system.
+
+- **Secure Password Storage**
+  - User passwords are encrypted using bcrypt hashing before storage.
+  - Authentication uses secure password verification.
+
+- **API Error Handling**
+  - Centralized error handling prevents sensitive server information from leaking.
+  - Provides controlled responses during failures.
+
+- **Authentication Protection**
+  - User-specific data access is isolated through authenticated request handling.
+
+---
+
+## ♿ Accessibility Improvements
+
+EcoTrack AI follows accessibility-focused development practices to ensure an inclusive experience.
+
+### Accessibility Features
+
+- **Automated Accessibility Testing**
+  - Integrated `axe` accessibility testing with Vitest.
+  - Ensures the application remains compliant during development.
+
+- **Semantic HTML Structure**
+  - Correct heading hierarchy and meaningful HTML elements improve screen reader navigation.
+
+- **Improved Visual Contrast**
+  - Designed interface colors with readability and visibility in mind.
+
+- **Keyboard-Friendly Interface**
+  - Interactive elements are structured to support accessible navigation.
+
+- **Responsive Design**
+  - The experience adapts across different screen sizes and devices.
+
+---
+
+## 🧪 Quality Assurance
+
+EcoTrack AI includes automated testing coverage for critical systems:
+
+- Carbon footprint calculation engine tests
+- Profile validation tests
+- Authentication API tests
+- API validation tests
+- Accessibility regression tests
+
+Current test status:
 
 ---
 
